@@ -286,6 +286,20 @@ The `agent_integration.py` script:
 - ✅ Works with or without AWS Bedrock (AI features optional)
 - ✅ Compatible with claude_agent_sdk workflow patterns
 
+#### Run Claude Agent SDK Example
+```bash
+# See working example of claude_agent_sdk integration
+python example_claude_agent_sdk.py
+```
+
+This example demonstrates:
+- How to read SKILL.md to understand capabilities
+- How claude_agent_sdk would use the skill
+- Direct function calls (works without SDK)
+- Complete workflow from Excel to PPT
+
+For detailed documentation, see [CLAUDE_AGENT_SDK_EXAMPLE.md](CLAUDE_AGENT_SDK_EXAMPLE.md)
+
 ## 💡 Examples
 
 ### Example 1: Basic PowerPoint Generation

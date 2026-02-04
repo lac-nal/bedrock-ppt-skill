@@ -279,17 +279,25 @@ def save_presentation(prs: Presentation, filename: str) -> str:
         IOError: If file cannot be saved
     """
     try:
-        # Sanitize filename
-        filename = sanitize_filename(filename)
+        # Split path and filename to sanitize only filename
+        output_dir = os.path.dirname(filename)
+        base_filename = os.path.basename(filename)
+        
+        # Sanitize only the filename part
+        base_filename = sanitize_filename(base_filename)
         
         # Ensure .pptx extension
-        if not filename.endswith('.pptx'):
-            filename += '.pptx'
+        if not base_filename.endswith('.pptx'):
+            base_filename += '.pptx'
         
-        # Create output directory if it doesn't exist
-        output_dir = os.path.dirname(filename)
-        if output_dir and not os.path.exists(output_dir):
-            os.makedirs(output_dir, exist_ok=True)
+        # Reconstruct full path
+        if output_dir:
+            filename = os.path.join(output_dir, base_filename)
+            # Create output directory if it doesn't exist
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir, exist_ok=True)
+        else:
+            filename = base_filename
         
         # Save presentation
         prs.save(filename)

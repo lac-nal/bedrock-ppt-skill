@@ -39,6 +39,8 @@ Perfect for business analysts, data scientists, and anyone who needs to quickly 
 ### Core Capabilities
 - 🤖 **AI-Powered Analysis**: Leverages Claude Sonnet 3.5 for intelligent data insights
 - 📊 **Multiple Slide Types**: Title, content, charts (bar/line/pie), and tables
+- 📈 **Excel Integration**: Read and process Excel files (.xlsx) for PPT generation
+- 🤝 **Agent SDK Compatible**: Works with claude_agent_sdk for automated workflows
 - ☁️ **AWS Integration**: Direct integration with Bedrock and S3
 - 🎨 **Customizable Styling**: Configure fonts, colors, and layouts
 - 📝 **Comprehensive Logging**: Track all operations for debugging
@@ -50,9 +52,11 @@ Perfect for business analysts, data scientists, and anyone who needs to quickly 
 - Pie charts
 
 ### Supported Data Formats
+- Excel files (.xlsx, .xls)
 - Sales data with time series
 - Product performance metrics
 - Financial data
+- Budget data
 - Custom data structures
 
 ## 🏗️ Architecture
@@ -248,6 +252,40 @@ This will create three example presentations in the `./output` directory:
 2. `example_bedrock_report.pptx` - Full AI-powered analysis
 3. `example_custom_data.pptx` - Custom data structure
 
+#### Excel to PPT Examples
+```bash
+# Run Excel integration examples
+python excel_to_ppt_example.py
+
+# Convert specific Excel file
+python agent_integration.py budget.xlsx --output report.pptx
+```
+
+### Claude Agent SDK Integration
+
+The skill is compatible with `claude_agent_sdk` for automated workflows:
+
+```python
+from agent_integration import process_excel_with_skill
+
+# Process Excel with skill
+result = process_excel_with_skill(
+    excel_path="D:\\NLS\\New folder (2)\\budget.xlsx",
+    output_path="D:\\NLS\\New folder (2)\\budget_report.pptx",
+    read_skill=True  # Reads SKILL.md automatically
+)
+
+print(f"Success: {result['success']}")
+print(f"Output: {result['output_path']}")
+```
+
+The `agent_integration.py` script:
+- ✅ Reads SKILL.md automatically to understand capabilities
+- ✅ Processes Excel files (.xlsx, .xls)
+- ✅ Creates PowerPoint presentations with data, charts, and tables
+- ✅ Works with or without AWS Bedrock (AI features optional)
+- ✅ Compatible with claude_agent_sdk workflow patterns
+
 ## 💡 Examples
 
 ### Example 1: Basic PowerPoint Generation
@@ -349,6 +387,59 @@ result = process_data_and_generate_ppt(
 print(f"Success! Presentation available at: {result}")
 ```
 
+### Example 5: Excel to PowerPoint Conversion
+
+```python
+from agent_integration import excel_to_ppt_with_ai
+
+# Convert Excel file to PowerPoint
+result = excel_to_ppt_with_ai(
+    excel_path="budget.xlsx",
+    output_path="budget_report.pptx",
+    use_bedrock=False  # Set to True for AI insights
+)
+
+print(f"PowerPoint created: {result}")
+```
+
+### Example 6: Excel Integration with Data Processing
+
+```python
+from excel_reader import read_excel_file, prepare_chart_data_from_df, prepare_table_data_from_df
+from ppt_exporter import create_presentation, add_title_slide, add_chart_slide, add_table_slide, save_presentation
+
+# Read Excel file
+df = read_excel_file("budget.xlsx")
+
+# Create presentation
+prs = create_presentation()
+add_title_slide(prs, "Budget Report", "Financial Analysis")
+
+# Add data table
+table_data = prepare_table_data_from_df(df)
+add_table_slide(prs, "Budget Data", table_data)
+
+# Add chart
+chart_data = prepare_chart_data_from_df(df, "Category", "Q1_Budget")
+add_chart_slide(prs, "Q1 Budget by Category", chart_data, chart_type='bar')
+
+# Save
+save_presentation(prs, "budget_analysis.pptx")
+```
+
+### Example 7: Command Line Excel to PPT
+
+```bash
+# Convert Excel to PowerPoint
+python agent_integration.py budget.xlsx --output report.pptx
+
+# With AI insights (requires AWS credentials)
+python agent_integration.py budget.xlsx --output report.pptx --with-ai
+
+# Run demo mode (creates sample Excel and converts)
+python agent_integration.py
+```
+
 ## 📚 API Reference
 
 For detailed API documentation, see [SKILL.md](SKILL.md).
@@ -369,6 +460,18 @@ For detailed API documentation, see [SKILL.md](SKILL.md).
 - `add_table_slide()` - Add data tables
 - `save_presentation()` - Save PPT file
 - `upload_to_s3()` - Upload to S3
+
+#### `excel_reader.py` (NEW)
+- `read_excel_file()` - Read Excel file into DataFrame
+- `extract_budget_data()` - Extract budget data for analysis
+- `prepare_chart_data_from_df()` - Prepare chart data from DataFrame
+- `prepare_table_data_from_df()` - Prepare table data from DataFrame
+- `get_excel_info()` - Get Excel file information
+
+#### `agent_integration.py` (NEW)
+- `excel_to_ppt_with_ai()` - Convert Excel to PPT with optional AI
+- `read_skill_file()` - Read SKILL.md documentation
+- `process_excel_with_skill()` - Main entry point for agent workflows
 
 #### `utils.py`
 - `validate_data_structure()` - Validate data format
@@ -479,17 +582,20 @@ Check the './output' directory for generated PowerPoint files.
 
 ```
 bedrock-ppt-skill/
-├── README.md                 # This file
-├── SKILL.md                  # Detailed skill documentation
-├── requirements.txt          # Python dependencies
-├── .env.example             # Environment variables template
-├── .gitignore               # Git ignore rules
-├── config.py                # Configuration settings
-├── bedrock_analyzer.py      # Bedrock Claude integration
-├── ppt_exporter.py          # PowerPoint generation
-├── main.py                  # Main orchestration script
-├── example.py               # Working examples
-└── utils.py                 # Helper utilities
+├── README.md                    # This file
+├── SKILL.md                     # Detailed skill documentation
+├── requirements.txt             # Python dependencies
+├── .env.example                 # Environment variables template
+├── .gitignore                   # Git ignore rules
+├── config.py                    # Configuration settings
+├── bedrock_analyzer.py          # Bedrock Claude integration
+├── ppt_exporter.py              # PowerPoint generation
+├── excel_reader.py              # Excel file reading (NEW)
+├── agent_integration.py         # Claude Agent SDK integration (NEW)
+├── excel_to_ppt_example.py      # Excel to PPT examples (NEW)
+├── main.py                      # Main orchestration script
+├── example.py                   # Working examples
+└── utils.py                     # Helper utilities
 ```
 
 ## 🤝 Contributing

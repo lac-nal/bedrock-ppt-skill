@@ -1,12 +1,15 @@
 """
 A2A Agent Server
 Strands Agents A2A implementation running on port 9009
+With PPTX export capability
 """
 import os
+import json
 from typing import Any, Dict, List, Optional
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 import uvicorn
+from pptx_generator import PPTXGenerator, generate_pptx
 
 
 # Define the Agent's input/output models
@@ -27,11 +30,13 @@ class AgentCard(BaseModel):
     """Agent Card - describes the agent's capabilities"""
     name: str = "A2A Strands Agent"
     version: str = "1.0.0"
-    description: str = "A2A Agent implementation using Strands Agents framework"
+    description: str = "A2A Agent implementation using Strands Agents framework with PPTX export"
     capabilities: List[str] = [
         "task_execution",
         "query_processing",
-        "context_aware_responses"
+        "context_aware_responses",
+        "pptx_export",
+        "pptx_generation"
     ]
     endpoint: str = "http://localhost:9009"
 
@@ -56,8 +61,11 @@ class StrandsA2AAgent:
         self.capabilities = [
             "task_execution",
             "query_processing", 
-            "context_aware_responses"
+            "context_aware_responses",
+            "pptx_export",
+            "pptx_generation"
         ]
+        self.pptx_generator = PPTXGenerator()
     
     async def process(self, agent_input: AgentInput) -> AgentOutput:
         """
@@ -96,7 +104,13 @@ class StrandsA2AAgent:
         Returns:
             str: Result of task execution
         """
-        # This is a simple implementation - extend with your agent logic
+        query_lower = query.lower()
+        
+        # Check if this is a PPTX generation request
+        if "pptx" in query_lower or "powerpoint" in query_lower or "presentation" in query_lower:
+            return await self._handle_pptx_request(query, context)
+        
+        # Default processing for non-PPTX requests
         response = f"Processed query: '{query}'"
         
         if context:
@@ -106,6 +120,56 @@ class StrandsA2AAgent:
         # For example: data processing, API calls, computations, etc.
         
         return response
+    
+    async def _handle_pptx_request(self, query: str, context: Dict[str, Any]) -> str:
+        """
+        Handle PPTX generation request
+        
+        Args:
+            query: The query string
+            context: Additional context with presentation details
+            
+        Returns:
+            str: Result with file path and details
+        """
+        try:
+            # Extract presentation details from context
+            title = context.get("title", "Generated Presentation")
+            subtitle = context.get("subtitle", "")
+            slides = context.get("slides", [])
+            
+            # If slides not provided, create a simple presentation
+            if not slides:
+                # Create a simple presentation based on query
+                slides = [
+                    {
+                        "type": "text",
+                        "title": "Content",
+                        "content": query
+                    }
+                ]
+            
+            # Generate PPTX
+            request_data = {
+                "title": title,
+                "subtitle": subtitle,
+                "slides": slides
+            }
+            
+            result = generate_pptx(request_data)
+            
+            # Format response
+            response = f"✓ PPTX Generated Successfully!\n\n"
+            response += f"File: {result['filename']}\n"
+            response += f"Path: {result['filepath']}\n"
+            response += f"Size: {result['file_size']:,} bytes\n"
+            response += f"Slides: {result['slides_count']}\n"
+            response += f"\nPresentation ready for download."
+            
+            return response
+            
+        except Exception as e:
+            return f"Error generating PPTX: {str(e)}"
     
     def get_card(self) -> AgentCard:
         """
@@ -117,7 +181,7 @@ class StrandsA2AAgent:
         return AgentCard(
             name=self.name,
             version=self.version,
-            description="A2A Agent implementation using Strands Agents framework",
+            description="A2A Agent implementation using Strands Agents framework with PPTX export",
             capabilities=self.capabilities,
             endpoint="http://localhost:9009"
         )
